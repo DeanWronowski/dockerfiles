@@ -18,7 +18,7 @@ help:
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 	@echo $(TAG)
 
-all: beanstalkd beanstalkd-console hugin jekyll latex mailcatcher mysql-backup-s3 nginx-envtpl nodejs octave opencv postgres-backup-s3 postgres-restore-s3 redis-commander rust s3cmd scala-sbt-docker swagger-ui thumbor-nginx-cors ## Build all images
+all: hugin jekyll latex mailcatcher mysql-backup-s3 nginx-envtpl nodejs octave opencv postgres-backup-s3 postgres-restore-s3 redis-commander rust s3cmd scala-sbt-docker swagger-ui thumbor-nginx-cors ## Build all images
 
 .PHONY: hugin
 hugin: ## Build hugin image
