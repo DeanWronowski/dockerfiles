@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 set -eo pipefail
 
@@ -7,8 +7,8 @@ if [ "${S3_S3V4}" = "yes" ]; then
 fi
 
 if [ "${SCHEDULE}" = "**None**" ]; then
-  sh backup.sh
+    sh backup.sh
 else
-  echo -e "SHELL=/bin/sh\n${SCHEDULE} /bin/sh /backup.sh" > /etc/crontabs/root
-  exec go-crond /etc/crontabs/root
+    echo -e "SHELL=/bin/sh\n${SCHEDULE} root /bin/sh /backup.sh" > /etc/crontabs/root
+    exec go-crond /etc/crontabs/root
 fi
