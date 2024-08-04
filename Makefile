@@ -20,14 +20,6 @@ help:
 
 all: beanstalkd beanstalkd-console hugin jekyll latex mailcatcher mysql-backup-s3 nginx-envtpl nodejs octave opencv postgres-backup-s3 postgres-restore-s3 redis-commander rust s3cmd scala-sbt-docker swagger-ui thumbor-nginx-cors ## Build all images
 
-.PHONY: beanstalkd
-beanstalkd: ## Build beanstalkd image
-	$(call docker_build_and_push,beanstalkd)
-
-.PHONY: beanstalkd-console
-beanstalkd-console: ## Build beanstalkd-console image
-	$(call docker_build_and_push,beanstalkd-console)
-
 .PHONY: hugin
 hugin: ## Build hugin image
 	$(call docker_build_and_push,hugin)
