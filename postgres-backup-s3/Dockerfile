@@ -2,12 +2,12 @@ FROM alpine:latest
 
 LABEL maintainer="Johannes Schickling <schickling.j@gmail.com>"
 
-# Install necessary packages including dcron and AWS CLI
+# Install necessary packages including go-crond and other utilities
 RUN apk add --no-cache bash curl ca-certificates \
     && apk add --no-cache postgresql-client \
     && apk add --no-cache aws-cli \
-    && apk add --no-cache busybox-suid \
-    && apk add --no-cache dcron
+    && apk add --no-cache dcron \
+    && apk add --no-cache go-crond
 
 # Add the install script
 ADD install.sh install.sh
