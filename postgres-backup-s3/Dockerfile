@@ -8,10 +8,6 @@ RUN apk add --no-cache bash curl ca-certificates \
     && apk add --no-cache aws-cli \
     && apk add --no-cache dcron
 
-# Manually download and install go-crond
-RUN curl -Lo /usr/local/bin/go-crond https://github.com/webdevops/go-crond/releases/download/v0.7.1/go-crond-linux-amd64 \
-    && chmod +x /usr/local/bin/go-crond
-
 # Add the install script
 ADD install.sh install.sh
 RUN sh install.sh && rm install.sh
