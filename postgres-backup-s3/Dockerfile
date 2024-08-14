@@ -1,11 +1,13 @@
-FROM alpine:3.20
+FROM alpine:latest
 
-# Install necessary packages including cron and AWS CLI
+LABEL maintainer="Johannes Schickling <schickling.j@gmail.com>"
+
+# Install necessary packages including dcron and AWS CLI
 RUN apk add --no-cache bash curl ca-certificates \
     && apk add --no-cache postgresql-client \
     && apk add --no-cache aws-cli \
-    && apk add --no-cache --update busybox-suid \
-    && apk add --no-cache --update cron
+    && apk add --no-cache busybox-suid \
+    && apk add --no-cache dcron
 
 # Add the install script
 ADD install.sh install.sh
