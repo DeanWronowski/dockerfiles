@@ -48,6 +48,8 @@ else
   AWS_ARGS="--endpoint-url $S3_ENDPOINT"
 fi
 
+export PGPASSWORD="$POSTGRES_PASSWORD"
+
 # Backup all databases or specific ones
 if [ "$POSTGRES_BACKUP_ALL" = "true" ]; then
   SRC_FILE="dump.sql.gz"
