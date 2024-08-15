@@ -6,7 +6,8 @@ LABEL maintainer="Johannes Schickling <schickling.j@gmail.com>"
 RUN apk add --no-cache bash curl ca-certificates \
     && apk add --no-cache postgresql-client \
     && apk add --no-cache aws-cli \
-    && apk --no-cache add busybox-suid
+    && apk --no-cache add busybox-suid \
+    && apk add --no-cache go-crond
 
 # Set environment variables
 ENV POSTGRES_DATABASE **None**
