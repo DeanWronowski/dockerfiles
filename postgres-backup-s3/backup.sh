@@ -31,6 +31,8 @@ if [ -z "$POSTGRES_HOST" ]; then
   fi
 fi
 
+POSTGRES_PORT=${POSTGRES_PORT:-5432}
+
 if [ -z "$POSTGRES_USER" ]; then
   echo "You need to set the POSTGRES_USER environment variable."
   exit 1
@@ -49,6 +51,9 @@ else
 fi
 
 export PGPASSWORD="$POSTGRES_PASSWORD"
+
+# Ensure clean-up of temporary files
+trap "rm -f dump.sql.gz dump.sql.gz.enc" EXIT
 
 # Backup all databases or specific ones
 if [ "$POSTGRES_BACKUP_ALL" = "true" ]; then
@@ -79,16 +84,19 @@ if [ "$POSTGRES_BACKUP_ALL" = "true" ]; then
   fi
 
   echo "Uploading dump to $S3_BUCKET"
-  if aws $AWS_ARGS s3 cp "$SRC_FILE" "s3://${S3_BUCKET}/${DEST_FILE}"; then
+  if aws $AWS_ARGS s3 cp "$SRC_FILE" "s3://${S3_BUCKET}/${DEST_FILE}" --region "$S3_REGION"; then
     echo "SQL backup uploaded successfully"
   else
     echo "Error uploading to S3" >&2
-    exit 2
+    exit 3
   fi
 
-  rm -rf "$SRC_FILE"
 else
-  IFS=',' read -ra DBS <<< "$POSTGRES_DATABASE"
+  OLD_IFS="$IFS"
+  IFS=','
+  read -ra DBS <<< "$POSTGRES_DATABASE"
+  IFS="$OLD_IFS"
+
   for DB in "${DBS[@]}"; do
     SRC_FILE="dump.sql.gz"
     DEST_FILE="${DB}_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz"
@@ -117,13 +125,12 @@ else
     fi
 
     echo "Uploading dump to $S3_BUCKET"
-    if aws $AWS_ARGS s3 cp "$SRC_FILE" "s3://${S3_BUCKET}/${DEST_FILE}"; then
+    if aws $AWS_ARGS s3 cp "$SRC_FILE" "s3://${S3_BUCKET}/${DEST_FILE}" --region "$S3_REGION"; then
       echo "SQL backup uploaded successfully"
     else
       echo "Error uploading to S3" >&2
-      exit 2
+      exit 3
     fi
 
-    rm -rf "$SRC_FILE"
   done
 fi
