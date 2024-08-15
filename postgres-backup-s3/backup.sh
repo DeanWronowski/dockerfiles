@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check required environment variables
 if [ -z "$S3_ACCESS_KEY_ID" ]; then
@@ -77,7 +77,7 @@ if [ "$POSTGRES_BACKUP_ALL" = "true" ]; then
   fi
 
   echo "Uploading dump to $S3_BUCKET"
-  if cat "$SRC_FILE" | aws $AWS_ARGS s3 cp - "s3://${S3_BUCKET}${S3_PREFIX}${DEST_FILE}"; then
+  if aws $AWS_ARGS s3 cp "$SRC_FILE" "s3://${S3_BUCKET}${S3_PREFIX}${DEST_FILE}"; then
     echo "SQL backup uploaded successfully"
   else
     echo "Error uploading to S3" >&2
@@ -115,7 +115,7 @@ else
     fi
 
     echo "Uploading dump to $S3_BUCKET"
-    if cat "$SRC_FILE" | aws $AWS_ARGS s3 cp - "s3://${S3_BUCKET}${S3_PREFIX}${DEST_FILE}"; then
+    if aws $AWS_ARGS s3 cp "$SRC_FILE" "s3://${S3_BUCKET}${S3_PREFIX}${DEST_FILE}"; then
       echo "SQL backup uploaded successfully"
     else
       echo "Error uploading to S3" >&2

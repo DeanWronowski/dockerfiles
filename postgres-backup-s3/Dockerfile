@@ -2,8 +2,7 @@
 FROM debian:bullseye
 
 # Update the package list and install required packages
-RUN apt-get update && \
-    apt-get install -y \
+RUN apt-get update && apt-get install -y \
     cron \
     bash \
     curl \
@@ -39,4 +38,7 @@ COPY backup.sh /backup.sh
 RUN chmod +x /run.sh /backup.sh
 
 # Set the default command to run the run.sh script
-CMD ["sh", "/run.sh"]
+CMD ["bash", "/run.sh"]
+
+# Optional: Add a health check to ensure the container is running properly
+# HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD pgrep cron || exit 1
