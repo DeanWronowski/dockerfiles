@@ -1,13 +1,13 @@
-FROM alpine:latest
+FROM debian:bullseye
+RUN apt-get update && apt-get install -y cron bash curl ca-certificates postgresql-client awscli
 
-LABEL maintainer="Johannes Schickling <schickling.j@gmail.com>"
 
 # Install necessary packages
-RUN apk add --no-cache bash curl ca-certificates \
-    && apk add --no-cache postgresql-client \
-    && apk add --no-cache aws-cli \
-    && apk --no-cache add busybox-suid \
-    && apk add --no-cache go-crond
+# RUN apk add --no-cache bash curl ca-certificates \
+#     && apk add --no-cache postgresql-client \
+#     && apk add --no-cache aws-cli \
+#     && apk --no-cache add busybox-suid \
+#     && apk add --no-cache go-crond
 
 # Set environment variables
 ENV POSTGRES_DATABASE **None**
