@@ -11,5 +11,5 @@ if [ "${SCHEDULE}" = "**None**" ]; then
 else
     echo -e "SHELL=/bin/sh\n${SCHEDULE} /bin/sh /backup.sh" > /etc/crontabs/root
     # Start dcron in the foreground with log level 2
-    crond -f -l 2
+    crond -f -s -L 2
 fi
