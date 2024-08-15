@@ -6,11 +6,7 @@ LABEL maintainer="Johannes Schickling <schickling.j@gmail.com>"
 RUN apk add --no-cache bash curl ca-certificates \
     && apk add --no-cache postgresql-client \
     && apk add --no-cache aws-cli \
-    && apk add --no-cache dcron
-
-# Add the install script
-ADD install.sh install.sh
-RUN sh install.sh && rm install.sh
+    && apk --no-cache add busybox-suid
 
 # Set environment variables
 ENV POSTGRES_DATABASE **None**
@@ -30,9 +26,12 @@ ENV S3_S3V4 no
 ENV SCHEDULE **None**
 ENV ENCRYPTION_PASSWORD **None**
 
-# Add scripts
-ADD run.sh run.sh
-ADD backup.sh backup.sh
+# Add scripts to the image
+COPY run.sh run.sh
+COPY backup.sh backup.sh
+
+# Ensure scripts have executable permissions
+RUN chmod +x run.sh backup.sh
 
 # Run the run.sh script
 CMD ["sh", "run.sh"]
