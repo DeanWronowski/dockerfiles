@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Check required environment variables
-if [ -z "$S3_ACCESS_KEY_ID" ]; then
-  echo "You need to set the S3_ACCESS_KEY_ID environment variable."
+if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+  echo "You need to set the AWS_ACCESS_KEY_ID environment variable."
   exit 1
 fi
 
-if [ -z "$S3_SECRET_ACCESS_KEY" ]; then
-  echo "You need to set the S3_SECRET_ACCESS_KEY environment variable."
+if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+  echo "You need to set the AWS_SECRET_ACCESS_KEY environment variable."
   exit 1
 fi
 
