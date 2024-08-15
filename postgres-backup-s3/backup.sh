@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 # Check required environment variables
 if [ -z "$S3_ACCESS_KEY_ID" ]; then
@@ -17,7 +17,7 @@ if [ -z "$S3_BUCKET" ]; then
 fi
 
 if [ -z "$POSTGRES_DATABASE" ] && [ "$POSTGRES_BACKUP_ALL" != "true" ]; then
-  echo "You need to set the POSTGRES_DATABASE environment variable."
+  echo "You need to set the POSTGRES_DATABASE environment variable or enable POSTGRES_BACKUP_ALL."
   exit 1
 fi
 
@@ -48,89 +48,80 @@ else
   AWS_ARGS="--endpoint-url $S3_ENDPOINT"
 fi
 
-
 # Backup all databases or specific ones
-if [ "${POSTGRES_BACKUP_ALL}" == "true" ]; then
-  SRC_FILE=dump.sql.gz
-  DEST_FILE=all_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz
+if [ "$POSTGRES_BACKUP_ALL" = "true" ]; then
+  SRC_FILE="dump.sql.gz"
+  DEST_FILE="all_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz"
   
-  if [ "${S3_FILE_NAME}" != "**None**" ]; then
-    DEST_FILE=${S3_FILE_NAME}.sql.gz
-  fi
+  [ -n "$S3_FILE_NAME" ] && DEST_FILE="${S3_FILE_NAME}.sql.gz"
 
-  echo "Creating dump of all databases from ${POSTGRES_HOST}..."
-  if pg_dumpall -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER | gzip > $SRC_FILE; then
+  echo "Creating dump of all databases from $POSTGRES_HOST..."
+  if pg_dumpall -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" | gzip > "$SRC_FILE"; then
     echo "Database dump successful."
   else
     echo "Database dump failed." >&2
     exit 2
   fi
 
-  if [ "${ENCRYPTION_PASSWORD}" != "**None**" ]; then
-    echo "Encrypting ${SRC_FILE}"
-    if openssl enc -aes-256-cbc -in $SRC_FILE -out ${SRC_FILE}.enc -k $ENCRYPTION_PASSWORD; then
+  if [ -n "$ENCRYPTION_PASSWORD" ]; then
+    echo "Encrypting $SRC_FILE"
+    if openssl enc -aes-256-cbc -in "$SRC_FILE" -out "${SRC_FILE}.enc" -k "$ENCRYPTION_PASSWORD"; then
       echo "Encryption successful."
-      rm $SRC_FILE
+      rm "$SRC_FILE"
       SRC_FILE="${SRC_FILE}.enc"
       DEST_FILE="${DEST_FILE}.enc"
     else
-      echo "Error encrypting ${SRC_FILE}" >&2
+      echo "Error encrypting $SRC_FILE" >&2
       exit 2
     fi
   fi
 
   echo "Uploading dump to $S3_BUCKET"
-  if cat $SRC_FILE | aws $AWS_ARGS s3 cp - "s3://${S3_BUCKET}${S3_PREFIX}${DEST_FILE}"; then
+  if cat "$SRC_FILE" | aws $AWS_ARGS s3 cp - "s3://${S3_BUCKET}${S3_PREFIX}${DEST_FILE}"; then
     echo "SQL backup uploaded successfully"
   else
     echo "Error uploading to S3" >&2
     exit 2
   fi
 
-  rm -rf $SRC_FILE
+  rm -rf "$SRC_FILE"
 else
-  OIFS="$IFS"
-  IFS=','
-  for DB in $POSTGRES_DATABASE
-  do
-    IFS="$OIFS"
+  IFS=',' read -ra DBS <<< "$POSTGRES_DATABASE"
+  for DB in "${DBS[@]}"; do
+    SRC_FILE="dump.sql.gz"
+    DEST_FILE="${DB}_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz"
 
-    SRC_FILE=dump.sql.gz
-    DEST_FILE=${DB}_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz
-
-    if [ "${S3_FILE_NAME}" != "**None**" ]; then
-      DEST_FILE=${S3_FILE_NAME}_${DB}.sql.gz
-    fi
+    [ -n "$S3_FILE_NAME" ] && DEST_FILE="${S3_FILE_NAME}_${DB}.sql.gz"
     
-    echo "Creating dump of ${DB} database from ${POSTGRES_HOST}..."
-    if pg_dump $POSTGRES_HOST_OPTS $DB | gzip > $SRC_FILE; then
+    echo "Creating dump of $DB database from $POSTGRES_HOST..."
+    if pg_dump -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" "$DB" | gzip > "$SRC_FILE"; then
       echo "Database dump successful."
     else
       echo "Database dump failed." >&2
       exit 2
     fi
     
-    if [ "${ENCRYPTION_PASSWORD}" != "**None**" ]; then
-      echo "Encrypting ${SRC_FILE}"
-      if openssl enc -aes-256-cbc -in $SRC_FILE -out ${SRC_FILE}.enc -k $ENCRYPTION_PASSWORD; then
+    if [ -n "$ENCRYPTION_PASSWORD" ]; then
+      echo "Encrypting $SRC_FILE"
+      if openssl enc -aes-256-cbc -in "$SRC_FILE" -out "${SRC_FILE}.enc" -k "$ENCRYPTION_PASSWORD"; then
         echo "Encryption successful."
-        rm $SRC_FILE
+        rm "$SRC_FILE"
         SRC_FILE="${SRC_FILE}.enc"
         DEST_FILE="${DEST_FILE}.enc"
       else
-        echo "Error encrypting ${SRC_FILE}" >&2
+        echo "Error encrypting $SRC_FILE" >&2
         exit 2
       fi
     fi
 
     echo "Uploading dump to $S3_BUCKET"
-    if cat $SRC_FILE | aws $AWS_ARGS s3 cp - "s3://${S3_BUCKET}${S3_PREFIX}${DEST_FILE}"; then
+    if cat "$SRC_FILE" | aws $AWS_ARGS s3 cp - "s3://${S3_BUCKET}${S3_PREFIX}${DEST_FILE}"; then
       echo "SQL backup uploaded successfully"
     else
       echo "Error uploading to S3" >&2
       exit 2
     fi
 
-    rm -rf $SRC_FILE
+    rm -rf "$SRC_FILE"
   done
 fi
