@@ -83,8 +83,8 @@ if [ "$POSTGRES_BACKUP_ALL" = "true" ]; then
   fi
 
   echo "Uploading dump to $S3_BUCKET"
-  echo "Running command: aws $AWS_ARGS s3 cp \"$SRC_FILE\" \"s3://${S3_BUCKET}/${DEST_FILE}\" --region \"$S3_REGION\""
-  if aws $AWS_ARGS s3 cp "$SRC_FILE" "s3://${S3_BUCKET}/${DEST_FILE}" --region "$S3_REGION"; then
+  echo "Running command: aws s3 cp \"$SRC_FILE\" \"s3://${S3_BUCKET}/${DEST_FILE}\" --region \"$S3_REGION\" $AWS_ARGS"
+  if aws s3 cp "$SRC_FILE" "s3://${S3_BUCKET}/${DEST_FILE}" --region "$S3_REGION"$AWS_ARGS; then
     echo "SQL backup uploaded successfully"
   else
     echo "Error uploading to S3" >&2
@@ -122,8 +122,8 @@ else
     fi
 
     echo "Uploading dump to $S3_BUCKET"
-    echo "Running command: aws $AWS_ARGS s3 cp \"$SRC_FILE\" \"s3://${S3_BUCKET}/${DEST_FILE}\" --region \"$S3_REGION\""
-    if aws $AWS_ARGS s3 cp "$SRC_FILE" "s3://${S3_BUCKET}/${DEST_FILE}" --region "$S3_REGION"; then
+    echo "Running command: aws s3 cp \"$SRC_FILE\" \"s3://${S3_BUCKET}/${DEST_FILE}\" --region \"$S3_REGION\" $AWS_ARGS"
+    if aws s3 cp "$SRC_FILE" "s3://${S3_BUCKET}/${DEST_FILE}" --region "$S3_REGION" $AWS_ARGS; then
       echo "SQL backup uploaded successfully"
     else
       echo "Error uploading to S3" >&2
