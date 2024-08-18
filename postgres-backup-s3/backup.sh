@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Check required environment variables
 if [ -z "$AWS_ACCESS_KEY_ID" ]; then
@@ -44,9 +44,8 @@ if [ -z "$POSTGRES_PASSWORD" ]; then
 fi
 
 # Configure AWS CLI options
-if [ -z "$S3_ENDPOINT" ]; then
-  AWS_ARGS=""
-else
+AWS_ARGS=""
+if [ -n "$S3_ENDPOINT" ]; then
   AWS_ARGS="--endpoint-url $S3_ENDPOINT"
 fi
 
@@ -94,10 +93,7 @@ if [ "$POSTGRES_BACKUP_ALL" = "true" ]; then
 else
   OLD_IFS="$IFS"
   IFS=','
-  read -ra DBS <<< "$POSTGRES_DATABASE"
-  IFS="$OLD_IFS"
-
-  for DB in "${DBS[@]}"; do
+  for DB in $POSTGRES_DATABASE; do
     SRC_FILE="dump.sql.gz"
     DEST_FILE="${DB}_$(date +"%Y-%m-%dT%H:%M:%SZ").sql.gz"
 
@@ -133,4 +129,5 @@ else
     fi
 
   done
+  IFS="$OLD_IFS"
 fi

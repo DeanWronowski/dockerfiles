@@ -1,16 +1,14 @@
-# Use Debian Bullseye as the base image
-FROM debian:bullseye
+FROM alpine:latest
 
 # Update the package list and install required packages
-RUN apt-get update && apt-get install -y \
+RUN apk update && apk add --no-cache \
     cron \
     bash \
     curl \
     ca-certificates \
     postgresql-client \
-    awscli && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    aws-cli \
+    procps
 
 # Set environment variables with default values
 ENV POSTGRES_DATABASE=""
@@ -38,7 +36,7 @@ COPY backup.sh /backup.sh
 RUN chmod +x /run.sh /backup.sh
 
 # Set the default command to run the run.sh script
-CMD ["bash", "/run.sh"]
+CMD ["sh", "run.sh"]
 
 # Optional: Add a health check to ensure the container is running properly
 # HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD pgrep cron || exit 1
