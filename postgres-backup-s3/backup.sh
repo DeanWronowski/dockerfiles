@@ -45,9 +45,9 @@ fi
 
 # Configure AWS CLI options
 AWS_ARGS=""
-if [ -n "$S3_ENDPOINT" ]; then
-  AWS_ARGS="--endpoint-url $S3_ENDPOINT"
-fi
+# if [ -n "$S3_ENDPOINT" ]; then
+#   # AWS_ARGS="--endpoint-url $S3_ENDPOINT"
+# fi
 
 export PGPASSWORD="$POSTGRES_PASSWORD"
 
