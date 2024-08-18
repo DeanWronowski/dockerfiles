@@ -1,14 +1,8 @@
 FROM alpine:latest
 
 # Update the package list and install required packages
-RUN apk update && apk add --no-cache \
-    cron \
-    bash \
-    curl \
-    ca-certificates \
-    postgresql-client \
-    aws-cli \
-    procps
+RUN apk update && apk add --no-cache dcron bash curl ca-certificates postgresql-client aws-cli procps
+
 
 # Set environment variables with default values
 ENV POSTGRES_DATABASE=""
